@@ -1,6 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-// import { EditableCell } from "./EdittableCell";
-// import { useMemo } from "react";
+
 
 export const todoColumns: ColumnDef<TypeOfTodo>[] = [
     {
@@ -60,7 +59,29 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         }
     },
     { 
-        header: "status", 
+        header: ({column}) => {
+            return (
+                <div onClick={
+                    () => {
+                        column.setFilterValue((old: boolean) => {
+                            console.log(old)
+                            switch(old) {
+                            case true:
+                                return false
+                            case false:
+                                return undefined
+                            case undefined:
+                                return true
+                            default:
+                                return undefined
+                            }
+                        })
+                    }
+                }>
+                    status
+                </div> 
+            )
+        },
         accessorKey: "isComplete",
         cell: ({row}) => {
             const todo = row.original
