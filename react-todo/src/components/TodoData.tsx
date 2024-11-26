@@ -1,5 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "./SortableHeader";
+import { DateCell } from "./DateCell";
 
 
 export const todoColumns: ColumnDef<TypeOfTodo>[] = [
@@ -35,18 +36,12 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
     { 
         header:  (info) => SortableHeader({title:"created at", info: info}),
         accessorKey: "createdAt",
-        cell: ({row}) => {
-            const todo = row.original
-            return `${todo.createdAt.getFullYear()}/${todo.createdAt.getMonth()+1}/${todo.createdAt.getDate()}`
-        }
+        cell: ({row}) => DateCell(row.original.createdAt)
     },
     { 
         header: (info) => SortableHeader({title:"due to", info: info}),
         accessorKey: "limit",
-        cell: ({row}) => {
-            const todo = row.original
-            return `${todo.limit.getFullYear()}/${todo.limit.getMonth()+1}/${todo.limit.getDate()}`
-        }
+        cell: ({row}) => DateCell(row.original.limit)
     },
     { 
         header: ({column}) => {
