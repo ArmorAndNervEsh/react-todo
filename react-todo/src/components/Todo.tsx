@@ -11,15 +11,17 @@ export default function Todo(props: {
     const [isComposing, setIsComposing] = useState(false);
 
     const [sorting, setSorting] = useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
     const table = useReactTable({
         data: props.todos,
         columns: todoColumns,
         columnResizeMode: 'onChange',
         getCoreRowModel: getCoreRowModel(),
-        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
         onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
         defaultColumn: {
           size: 400,
         },
@@ -35,6 +37,7 @@ export default function Todo(props: {
         },
         state: {
             sorting,
+            columnFilters
         }
     });
         
