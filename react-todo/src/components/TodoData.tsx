@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { SortableHeader } from "./SortableHeader";
 
 
 export const todoColumns: ColumnDef<TypeOfTodo>[] = [
@@ -32,13 +33,7 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         }
     },
     { 
-        header: ({column}) => {
-            return (
-                <div onClick={column.getToggleSortingHandler()}>
-                    created at
-                </div>
-            )
-        },
+        header:  (info) => SortableHeader({title:"created at", info: info}),
         accessorKey: "createdAt",
         cell: ({row}) => {
             const todo = row.original
@@ -46,14 +41,9 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         }
     },
     { 
-        header: ({column}) => {
-            return (
-                <div onClick={column.getToggleSortingHandler()}>
-                    due to
-                </div>
-            )
-        },
-        accessorKey: "limit",cell: ({row}) => {
+        header: (info) => SortableHeader({title:"due to", info: info}),
+        accessorKey: "limit",
+        cell: ({row}) => {
             const todo = row.original
             return `${todo.limit.getFullYear()}/${todo.limit.getMonth()+1}/${todo.limit.getDate()}`
         }
