@@ -31,9 +31,9 @@ export default function Todo(props: {
                     props.onTodo(id, "isEdittable", false)
                 }
             },
-            onTodo: <K extends keyof TypeOfTodo, V extends TypeOfTodo[K]>(id: number, key: K, val: V) => props.onTodo(id, key, val),
-            onDelete: (id:number) => props.onDelete(id),
-            setIsComposing: (isComposing: boolean) => setIsComposing(isComposing)
+            onTodo: props.onTodo,
+            onDelete: props.onDelete,
+            setIsComposing: setIsComposing
         },
         state: {
             sorting,
