@@ -1,6 +1,6 @@
 import { useState } from "react";
 // import { useTable } from 'react-table'
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
 import { todoColumns } from "./TodoData";
 
 export default function Todo(props: {
@@ -10,11 +10,16 @@ export default function Todo(props: {
 }) {
     const [isComposing, setIsComposing] = useState(false);
 
+    const [sorting, setSorting] = useState<SortingState>([])
+
     const table = useReactTable({
         data: props.todos,
         columns: todoColumns,
         columnResizeMode: 'onChange',
         getCoreRowModel: getCoreRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        onSortingChange: setSorting,
         defaultColumn: {
           size: 400,
         },
@@ -27,6 +32,9 @@ export default function Todo(props: {
             onTodo: <K extends keyof TypeOfTodo, V extends TypeOfTodo[K]>(id: number, key: K, val: V) => props.onTodo(id, key, val),
             onDelete: (id:number) => props.onDelete(id),
             setIsComposing: (isComposing: boolean) => setIsComposing(isComposing)
+        },
+        state: {
+            sorting,
         }
     });
         

@@ -33,7 +33,13 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         }
     },
     { 
-        header: 'created at',
+        header: ({column}) => {
+            return (
+                <div onClick={column.getToggleSortingHandler()}>
+                    created at
+                </div>
+            )
+        },
         accessorKey: "createdAt",
         cell: ({row}) => {
             const todo = row.original
@@ -41,7 +47,13 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         }
     },
     { 
-        header: "due to",
+        header: ({column}) => {
+            return (
+                <div onClick={column.getToggleSortingHandler()}>
+                    due to
+                </div>
+            )
+        },
         accessorKey: "limit",cell: ({row}) => {
             const todo = row.original
             return `${todo.limit.getFullYear()}/${todo.limit.getMonth()+1}/${todo.limit.getDate()}`
