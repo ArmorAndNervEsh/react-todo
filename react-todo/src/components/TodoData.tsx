@@ -2,18 +2,29 @@ import { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "./SortableHeader";
 import { DateCell } from "./DateCell";
 
+type TodoColumnDef<T> = ColumnDef<T> & Partial<{
+    handleKeyDown(key: string, id: number):void,
+    onTodo<K extends keyof TypeOfTodo, V extends TypeOfTodo[K]>(id: number, key: K, val: V):void,
+    onDelete(id: number):void,
+    setIsComposing: React.Dispatch<React.SetStateAction<boolean>>
+}>
 
-export const todoColumns: ColumnDef<TypeOfTodo>[] = [
+export const todoColumns: TodoColumnDef<TypeOfTodo>[] = [
     {
         header: '',
         accessorKey: 'select',
-        cell: (info) => {
+        cell: function(/*this:TodoColumnDef<TypeOfTodo>,*/ info) {
             const todo = info.row.original
-            const meta = info.table.options.meta
             return (<input
             type='checkBox'
             checked={todo.isComplete}
-            onChange={()=> meta?.onTodo(todo.id, 'isComplete', !todo.isComplete)}
+            onChange={(e)=> {
+                if (this.onTodo) {
+                    this.onTodo(todo.id, 'isComplete', e.target.checked)
+                } else {
+                    throw new Error('Function onTodo is not defined');
+                }
+            }}
         />)}
     },
     {
@@ -21,20 +32,20 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         accessorKey: "task", 
         cell: (info) => {
             const todo = info.row.original
-            const meta = info.table.options.meta
+            const customFunctions = todoColumns[0].customFunctions
             return (<input 
                 type='text'
                 value={todo.task}
                 disabled={!todo.isEdittable || todo.isComplete}
-                onChange={(e) => meta?.onTodo(todo.id, 'task', e.target.value)}
-                onKeyDown={(e) => meta?.handleKeyDown(e.key, todo.id)}
-                onCompositionStart={() => meta?.setIsComposing(true)}
-                onCompositionEnd={() => meta?.setIsComposing(false)}
+                onChange={(e) => customFunctions && customFunctions.onTodo && customFunctions.onTodo(todo.id, 'task', e.target.value)}
+                onKeyDown={(e) => customFunctions && customFunctions.handleKeyDown && customFunctions.handleKeyDown(e.key, todo.id)}
+                onCompositionStart={() => customFunctions && customFunctions.setIsComposing && customFunctions.setIsComposing(true)}
+                onCompositionEnd={() => customFunctions && customFunctions.setIsComposing && customFunctions.setIsComposing(false)}
             />)
         }
     },
     { 
-        header:  (info) => SortableHeader({title:"created at", info: info}),
+        header: (info) => SortableHeader({title:"created at", info: info}),
         accessorKey: "createdAt",
         cell: ({row}) => DateCell(row.original.createdAt)
     },
@@ -78,10 +89,10 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         accessorKey: "edit", 
         cell: (info) => {
             const todo = info.row.original
-            const meta = info.table.options.meta
+            const customFunctions = todoColumns[0].customFunctions
             return (<button
                 disabled={todo.isComplete}
-                onClick={()=>{meta?.onTodo(todo.id, "isEdittable", !todo.isEdittable)}}>{!todo.isEdittable?'edit':'cancel'}
+                onClick={()=> customFunctions && customFunctions.onTodo && customFunctions.onTodo(todo.id, "isEdittable", !todo.isEdittable)}>{!todo.isEdittable?'edit':'cancel'}
             </button>)
         }
     },
@@ -90,8 +101,8 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         accessorKey: "delete",
         cell: (info) => {
             const todo = info.row.original
-            const meta = info.table.options.meta
-            return (<button onClick={()=>{meta?.onDelete(todo.id)}}>delete</button>)
+            const customFunctions = todoColumns[0].customFunctions
+            return (<button onClick={()=> customFunctions && customFunctions.onDelete && customFunctions.onDelete(todo.id)}>delete</button>)
         }
     }
 ]

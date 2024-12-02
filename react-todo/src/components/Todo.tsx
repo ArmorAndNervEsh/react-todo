@@ -13,19 +13,9 @@ export default function Todo(props: {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
-    const table = useReactTable({
-        data: props.todos,
-        columns: todoColumns,
-        columnResizeMode: 'onChange',
-        getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
-        defaultColumn: {
-          size: 400,
-        },
-        meta: {
+    const injectedTodoColumuns = todoColumns.map((value) => {
+        return {
+            ...value,
             handleKeyDown: (key: string, id: number) => {
                 if (key === 'Enter' && !isComposing) {
                     props.onTodo(id, "isEdittable", false)
@@ -34,6 +24,20 @@ export default function Todo(props: {
             onTodo: props.onTodo,
             onDelete: props.onDelete,
             setIsComposing: setIsComposing
+        }
+    })
+
+    const table = useReactTable({
+        data: props.todos,
+        columns: injectedTodoColumuns,
+        columnResizeMode: 'onChange',
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        defaultColumn: {
+          size: 400,
         },
         state: {
             sorting,
