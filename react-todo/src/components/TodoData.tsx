@@ -2,18 +2,21 @@ import { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "./SortableHeader";
 import { DateCell } from "./DateCell";
 
-
-export const todoColumns: ColumnDef<TypeOfTodo>[] = [
+export const createTodoColumns = (
+    handleKeyDown: (key: string, id: number)=>void,
+    onTodo:<K extends keyof TypeOfTodo, V extends TypeOfTodo[K]>(id: number, key: K, val: V)=>void,
+    onDelete: (id: number)=>void,
+    setIsComposing: React.Dispatch<React.SetStateAction<boolean>>
+): ColumnDef<TypeOfTodo>[] => [
     {
         header: '',
         accessorKey: 'select',
-        cell: (info) => {
+        cell: function( info) {
             const todo = info.row.original
-            const meta = info.table.options.meta
             return (<input
             type='checkBox'
             checked={todo.isComplete}
-            onChange={()=> meta?.onTodo(todo.id, 'isComplete', !todo.isComplete)}
+            onChange={(e)=> {onTodo(todo.id, 'isComplete', e.target.checked)}}
         />)}
     },
     {
@@ -21,20 +24,19 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         accessorKey: "task", 
         cell: (info) => {
             const todo = info.row.original
-            const meta = info.table.options.meta
             return (<input 
                 type='text'
                 value={todo.task}
                 disabled={!todo.isEdittable || todo.isComplete}
-                onChange={(e) => meta?.onTodo(todo.id, 'task', e.target.value)}
-                onKeyDown={(e) => meta?.handleKeyDown(e.key, todo.id)}
-                onCompositionStart={() => meta?.setIsComposing(true)}
-                onCompositionEnd={() => meta?.setIsComposing(false)}
+                onChange={(e) => onTodo(todo.id, 'task', e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e.key, todo.id)}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
             />)
         }
     },
     { 
-        header:  (info) => SortableHeader({title:"created at", info: info}),
+        header: (info) => SortableHeader({title:"created at", info: info}),
         accessorKey: "createdAt",
         cell: ({row}) => DateCell(row.original.createdAt)
     },
@@ -78,10 +80,9 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         accessorKey: "edit", 
         cell: (info) => {
             const todo = info.row.original
-            const meta = info.table.options.meta
             return (<button
                 disabled={todo.isComplete}
-                onClick={()=>{meta?.onTodo(todo.id, "isEdittable", !todo.isEdittable)}}>{!todo.isEdittable?'edit':'cancel'}
+                onClick={()=> onTodo(todo.id, "isEdittable", !todo.isEdittable)}>{!todo.isEdittable?'edit':'cancel'}
             </button>)
         }
     },
@@ -90,8 +91,7 @@ export const todoColumns: ColumnDef<TypeOfTodo>[] = [
         accessorKey: "delete",
         cell: (info) => {
             const todo = info.row.original
-            const meta = info.table.options.meta
-            return (<button onClick={()=>{meta?.onDelete(todo.id)}}>delete</button>)
+            return (<button onClick={()=> onDelete(todo.id)}>delete</button>)
         }
     }
 ]

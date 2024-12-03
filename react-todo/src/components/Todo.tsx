@@ -1,7 +1,7 @@
 import { useState } from "react";
 // import { useTable } from 'react-table'
 import { ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, SortingState, useReactTable } from "@tanstack/react-table";
-import { todoColumns } from "./TodoData";
+import { createTodoColumns } from "./TodoData";
 
 export default function Todo(props: {
     todos: TypeOfTodo[],
@@ -13,9 +13,20 @@ export default function Todo(props: {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
+    const injectedTodoColumuns = createTodoColumns(
+            (key: string, id: number) => {
+                if (key === 'Enter' && !isComposing) {
+                    props.onTodo(id, "isEdittable", false)
+                }
+            },
+            props.onTodo,
+            props.onDelete,
+            setIsComposing
+    )
+
     const table = useReactTable({
         data: props.todos,
-        columns: todoColumns,
+        columns: injectedTodoColumuns,
         columnResizeMode: 'onChange',
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -24,16 +35,6 @@ export default function Todo(props: {
         onColumnFiltersChange: setColumnFilters,
         defaultColumn: {
           size: 400,
-        },
-        meta: {
-            handleKeyDown: (key: string, id: number) => {
-                if (key === 'Enter' && !isComposing) {
-                    props.onTodo(id, "isEdittable", false)
-                }
-            },
-            onTodo: props.onTodo,
-            onDelete: props.onDelete,
-            setIsComposing: setIsComposing
         },
         state: {
             sorting,
